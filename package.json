@@ -1,0 +1,30 @@
+{
+  "name": "joy-of-data",
+  "version": "1.0.0",
+  "description": "explore the joy of painting's seasons and episodes, broken down by feature",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dzhurley/joy-of-data.git"
+  },
+  "scripts": {
+    "build": "mkdir -p build && npm run lint && NODE_ENV='production' webpack -p",
+    "lint": "eslint js",
+    "start": "webpack-dev-server --history-api-fallback -d --progress --colors"
+  },
+  "author": "dzhurley",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.23.1",
+    "babel-eslint": "^7.1.1",
+    "babel-loader": "^6.4.0",
+    "babel-preset-es2015": "^6.22.0",
+    "eslint": "^3.17.1",
+    "eslint-config-dzhurley": "^1.0.1",
+    "eslint-loader": "^1.6.3",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  },
+  "dependencies": {
+    "d3": "^4.7.1"
+  }
+}
