@@ -4,29 +4,7 @@ import { height, width } from './constants';
 import { focus, map, svg, zoomExtent } from './elements';
 
 // save for coordinating in other handlers
-let brush, zoom;
-
-const brushMap = ({ focusX, mapX }, updateFocus) => {
-    const brushed = () => {
-        // ignore brush-by-zoom
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return;
-        const scale = d3.event.selection || mapX.range();
-        focusX.domain(scale.map(mapX.invert, mapX));
-        updateFocus();
-        zoomExtent.call(zoom.transform, d3.zoomIdentity
-            .scale(width / (scale[1] - scale[0]))
-            .translate(-scale[0], 0));
-    };
-
-    const mapBox = map.node().getBoundingClientRect();
-    brush = d3.brushX()
-        .extent([[mapBox.left, mapBox.top], [mapBox.right, mapBox.bottom]])
-        .on('brush', brushed);
-
-    svg.append('g')
-        .attr('class', 'brush')
-        .call(brush);
-};
+let zoom, brush;
 
 const zoomFocus = ({ focusX, mapX }, updateFocus) => {
     const zoomed = () => {
@@ -53,4 +31,27 @@ const zoomFocus = ({ focusX, mapX }, updateFocus) => {
         .call(zoom);
 };
 
-export { brushMap, zoomFocus };
+const brushMap = ({ focusX, mapX }, updateFocus) => {
+    const brushed = () => {
+        // ignore brush-by-zoom
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return;
+        const scale = d3.event.selection || mapX.range();
+        focusX.domain(scale.map(mapX.invert, mapX));
+        updateFocus();
+        zoomExtent.call(zoom.transform, d3.zoomIdentity
+            .scale(width / (scale[1] - scale[0]))
+            .translate(-scale[0], 0));
+    };
+
+    const mapBox = map.node().getBoundingClientRect();
+    brush = d3.brushX()
+        .extent([[mapBox.left, mapBox.top], [mapBox.right, mapBox.bottom]])
+        .on('brush', brushed);
+
+    svg.append('g')
+        .attr('class', 'brush')
+        .call(brush)
+        .call(brush.move, [mapBox.left, mapBox.right / 13]);
+};
+
+export { zoomFocus, brushMap };
