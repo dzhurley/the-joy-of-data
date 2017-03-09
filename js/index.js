@@ -20,8 +20,14 @@ const makeArea = (x, y) => d3.area()
     .y1(d => y(d[1]));
 
 const renderPaths = (node, series, area) => {
-    node.attr('width', width).attr('height', height);
-    const context = node.node().getContext('2d');
+    const element = node.node();
+    element.width = width * 2;
+    element.height = height * 2;
+    element.style.width = width + 'px';
+    element.style.height = height + 'px';
+
+    const context = element.getContext('2d');
+    context.scale(2, 2);
 
     series.map(datum => {
         context.fillStyle = types[datum.index][1];
