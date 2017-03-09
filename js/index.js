@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import { height, types, width } from './constants';
+import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './constants';
 import { focus, map } from './elements';
 
 const makeScales = (data, series) => {
@@ -8,8 +8,8 @@ const makeScales = (data, series) => {
     return {
         mapX: d3.scaleLinear().domain([0, data.length]).range([0, width]),
         focusX: d3.scaleLinear().domain([0, data.length]).range([0, width]),
-        mapY: d3.scaleLinear().domain([0, maxY]).range([0, height / 4]),
-        focusY: d3.scaleLinear().domain([0, maxY]).range([0, height * 1.25])
+        mapY: d3.scaleLinear().domain([0, maxY]).range([mapOffset, mapHeight]),
+        focusY: d3.scaleLinear().domain([0, maxY]).range([focusOffset, focusHeight])
     };
 };
 
@@ -19,13 +19,12 @@ const makeArea = (x, y) => d3.area()
     .y0(d => y(d[0]))
     .y1(d => y(d[1]));
 
-const renderPaths = (node, series, area) => {
+const renderPaths = (node, series, area, height, offset) => {
     const element = node.node();
     element.width = width * 2;
-    element.height = height * 2;
     element.style.width = width + 'px';
-    element.style.height = height + 'px';
-
+    element.height = height + offset;
+    element.style.height = height / 2 + offset + 'px';
     const context = element.getContext('2d');
     context.scale(2, 2);
 
@@ -63,6 +62,6 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const mapArea = makeArea(scales.mapX, scales.mapY);
         const focusArea = makeArea(scales.focusX, scales.focusY);
 
-        renderPaths(map, series, mapArea);
-        renderPaths(focus, series, focusArea);
+        renderPaths(map, series, mapArea, mapHeight, mapOffset);
+        renderPaths(focus, series, focusArea, focusHeight, focusOffset);
     });

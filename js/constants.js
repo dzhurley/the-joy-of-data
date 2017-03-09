@@ -1,6 +1,12 @@
 export const width = window.innerWidth;
 export const height = window.innerHeight;
 
+export const mapHeight = height / 4;
+export const mapOffset = 24;
+
+export const focusHeight = height * 1.25;
+export const focusOffset = 120;
+
 export const earth = ['earth', '#73795D'];
 export const flora = ['flora', '#64A175'];
 export const manmade = ['manmade', '#989D96'];
