@@ -20,28 +20,25 @@ const makeArea = (x, y) => d3.area()
     .y0(d => y(d[0]))
     .y1(d => y(d[1]));
 
-const updatePaths = (node, series, area) => {
-    const element = node.node();
-    const context = element.getContext('2d');
+const updatePaths = (element, context, series, area) => {
     context.clearRect(0, 0, element.width, element.height);
-
-    series.map(datum => {
+    series.forEach(datum => {
         context.fillStyle = types[datum.index][1];
-        context.strokeStyle = types[datum.index][1];
-        const path = new Path2D(area(datum));
-        context.stroke(path);
-        context.fill(path);
+        context.fill(new Path2D(area(datum)));
     });
 };
 
 const setupCanvas = (node, height, offset) => {
-    const element = node.node();
-    element.width = width * 2;
-    element.style.width = width + 'px';
-    element.height = height + offset;
-    element.style.height = height / 2 + offset + 'px';
-    const context = element.getContext('2d');
-    context.scale(2, 2);
+    const el = node.node();
+    el.width = width * 2;
+    el.style.width = width + 'px';
+    el.height = height + offset;
+    el.style.height = height / 2 + offset + 'px';
+
+    const ctx = el.getContext('2d');
+    ctx.scale(2, 2);
+
+    return { el, ctx };
 };
 
 d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv')
@@ -68,13 +65,13 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const mapArea = makeArea(scales.mapX, scales.mapY);
         const focusArea = makeArea(scales.focusX, scales.focusY);
 
-        const updateFocus = () => updatePaths(focus, series, focusArea);
+        const mapCanvas = setupCanvas(map, mapHeight, mapOffset);
+        updatePaths(mapCanvas.el, mapCanvas.ctx, series, mapArea);
 
-        setupCanvas(map, mapHeight, mapOffset);
-        updatePaths(map, series, mapArea);
-        brushMap(scales, updateFocus);
-
-        setupCanvas(focus, focusHeight, focusOffset);
+        const focusCanvas = setupCanvas(focus, focusHeight, focusOffset);
+        const updateFocus = () => updatePaths(focusCanvas.el, focusCanvas.ctx, series, focusArea);
         updateFocus();
+
+        brushMap(scales, updateFocus);
         zoomFocus(scales, updateFocus);
     });
