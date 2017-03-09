@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 
 import { height, width } from './constants';
-import { focus, map, zoomExtent } from './elements';
+import { focus, map, svg, zoomExtent } from './elements';
 
 // save for coordinating in other handlers
 let brush, zoom;
@@ -18,12 +18,12 @@ const brushMap = (area, { focusX, mapX }) => {
             .translate(-scale[0], 0));
     };
 
-    const mapBox = map.node().getBBox();
+    const mapBox = map.node().getBoundingClientRect();
     brush = d3.brushX()
-        .extent([[mapBox.x, mapBox.y], [mapBox.width, mapBox.y + mapBox.height]])
+        .extent([[mapBox.left, mapBox.top], [mapBox.right, mapBox.bottom]])
         .on('brush', brushed);
 
-    map.append('g')
+    svg.append('g')
         .attr('class', 'brush')
         .call(brush);
 };
@@ -44,10 +44,10 @@ const zoomFocus = (area, { focusX, mapX }) => {
         .extent([[0, 0], [width, height]])
         .on('zoom', zoomed);
 
-    const focusBox = focus.node().getBBox();
+    const focusBox = focus.node().getBoundingClientRect();
     zoomExtent
-        .attr('x', focusBox.x)
-        .attr('y', focusBox.y)
+        .attr('x', focusBox.left)
+        .attr('y', focusBox.top)
         .attr('width', focusBox.width)
         .attr('height', focusBox.height)
         .call(zoom);

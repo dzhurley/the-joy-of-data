@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 
 import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './constants';
 import { focus, map } from './elements';
+import { brushMap, zoomFocus } from './behaviors';
 
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
@@ -64,4 +65,7 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
 
         renderPaths(map, series, mapArea, mapHeight, mapOffset);
         renderPaths(focus, series, focusArea, focusHeight, focusOffset);
+
+        brushMap(mapArea, scales);
+        zoomFocus(focusArea, scales);
     });
