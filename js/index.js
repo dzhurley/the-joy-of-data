@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 
 import { height, types, width } from './constants';
 import { focus, map } from './elements';
-import { brushMap, zoomFocus } from './behaviors';
 
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
@@ -20,15 +19,16 @@ const makeArea = (x, y) => d3.area()
     .y0(d => y(d[0]))
     .y1(d => y(d[1]));
 
-const colorByType = (...args) => types[args[1]][1];
+// const colorByType = (...args) => types[args[1]][1];
 
 const renderPaths = (node, series, area) => {
-    return node.selectAll('path')
-        .data(series)
-        .enter().append('path')
-        .attr('d', area)
-        .style('fill', colorByType)
-        .style('stroke', colorByType);
+    node.fillStyle = '#FF0000';
+    node.strokeStyle = '#00FF00';
+    series.map(datum => {
+        const path = new Path2D(area(datum));
+        node.stroke(path);
+        node.fill(path);
+    });
 };
 
 d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv')
@@ -57,8 +57,5 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const focusArea = makeArea(scales.focusX, scales.focusY);
 
         renderPaths(map, series, mapArea);
-        brushMap(focusArea, scales);
-
         renderPaths(focus, series, focusArea);
-        zoomFocus(focusArea, scales);
     });
