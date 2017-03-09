@@ -5,13 +5,11 @@ export const svg = select('body')
 
 export const map = select('body')
     .append('canvas')
-    .attr('class', 'map')
-    .node().getContext('2d');
+    .attr('class', 'map');
 
 export const focus = select('body')
     .append('canvas')
-    .attr('class', 'focus')
-    .node().getContext('2d');
+    .attr('class', 'focus');
 
 export const zoomExtent = svg.append('rect')
     .attr('class', 'zoom');

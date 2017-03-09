@@ -9,7 +9,7 @@ const makeScales = (data, series) => {
         mapX: d3.scaleLinear().domain([0, data.length]).range([0, width]),
         focusX: d3.scaleLinear().domain([0, data.length]).range([0, width]),
         mapY: d3.scaleLinear().domain([0, maxY]).range([0, height / 4]),
-        focusY: d3.scaleLinear().domain([0, maxY]).range([0, height])
+        focusY: d3.scaleLinear().domain([0, maxY]).range([0, height * 1.25])
     };
 };
 
@@ -20,12 +20,15 @@ const makeArea = (x, y) => d3.area()
     .y1(d => y(d[1]));
 
 const renderPaths = (node, series, area) => {
+    node.attr('width', width).attr('height', height);
+    const context = node.node().getContext('2d');
+
     series.map(datum => {
-        node.fillStyle = types[datum.index][1];
-        node.strokeStyle = types[datum.index][1];
+        context.fillStyle = types[datum.index][1];
+        context.strokeStyle = types[datum.index][1];
         const path = new Path2D(area(datum));
-        node.stroke(path);
-        node.fill(path);
+        context.stroke(path);
+        context.fill(path);
     });
 };
 
