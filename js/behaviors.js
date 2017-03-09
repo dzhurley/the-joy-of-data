@@ -6,13 +6,13 @@ import { focus, map, svg, zoomExtent } from './elements';
 // save for coordinating in other handlers
 let brush, zoom;
 
-const brushMap = (area, { focusX, mapX }) => {
+const brushMap = ({ focusX, mapX }, updateFocus) => {
     const brushed = () => {
         // ignore brush-by-zoom
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return;
         const scale = d3.event.selection || mapX.range();
         focusX.domain(scale.map(mapX.invert, mapX));
-        focus.selectAll('path').attr('d', area);
+        updateFocus();
         zoomExtent.call(zoom.transform, d3.zoomIdentity
             .scale(width / (scale[1] - scale[0]))
             .translate(-scale[0], 0));
@@ -28,13 +28,13 @@ const brushMap = (area, { focusX, mapX }) => {
         .call(brush);
 };
 
-const zoomFocus = (area, { focusX, mapX }) => {
+const zoomFocus = ({ focusX, mapX }, updateFocus) => {
     const zoomed = () => {
         // ignore zoom-by-brush
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'brush') return;
         const transform = d3.event.transform;
         focusX.domain(transform.rescaleX(mapX).domain());
-        focus.selectAll('path').attr('d', area);
+        updateFocus();
         d3.select('.brush').call(brush.move, mapX.range().map(transform.invertX, transform));
     };
 

@@ -20,14 +20,10 @@ const makeArea = (x, y) => d3.area()
     .y0(d => y(d[0]))
     .y1(d => y(d[1]));
 
-const renderPaths = (node, series, area, height, offset) => {
+const updatePaths = (node, series, area) => {
     const element = node.node();
-    element.width = width * 2;
-    element.style.width = width + 'px';
-    element.height = height + offset;
-    element.style.height = height / 2 + offset + 'px';
     const context = element.getContext('2d');
-    context.scale(2, 2);
+    context.clearRect(0, 0, element.width, element.height);
 
     series.map(datum => {
         context.fillStyle = types[datum.index][1];
@@ -36,6 +32,16 @@ const renderPaths = (node, series, area, height, offset) => {
         context.stroke(path);
         context.fill(path);
     });
+};
+
+const setupCanvas = (node, height, offset) => {
+    const element = node.node();
+    element.width = width * 2;
+    element.style.width = width + 'px';
+    element.height = height + offset;
+    element.style.height = height / 2 + offset + 'px';
+    const context = element.getContext('2d');
+    context.scale(2, 2);
 };
 
 d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv')
@@ -59,13 +65,16 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const series = stack(data);
 
         const scales = makeScales(data, series);
-
         const mapArea = makeArea(scales.mapX, scales.mapY);
         const focusArea = makeArea(scales.focusX, scales.focusY);
 
-        renderPaths(map, series, mapArea, mapHeight, mapOffset);
-        renderPaths(focus, series, focusArea, focusHeight, focusOffset);
+        const updateFocus = () => updatePaths(focus, series, focusArea);
 
-        brushMap(mapArea, scales);
-        zoomFocus(focusArea, scales);
+        setupCanvas(map, mapHeight, mapOffset);
+        updatePaths(map, series, mapArea);
+        brushMap(scales, updateFocus);
+
+        setupCanvas(focus, focusHeight, focusOffset);
+        updateFocus();
+        zoomFocus(scales, updateFocus);
     });
