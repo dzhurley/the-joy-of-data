@@ -4,8 +4,6 @@ import { height, types, width } from './constants';
 import { focus, map } from './elements';
 import { brushMap, zoomFocus } from './behaviors';
 
-const colorByType = (...args) => types[args[1]][1];
-
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
     return {
@@ -15,6 +13,14 @@ const makeScales = (data, series) => {
         focusY: d3.scaleLinear().domain([0, maxY]).range([0, height * 1.25])
     };
 };
+
+const makeArea = (x, y) => d3.area()
+    .curve(d3.curveBasis)
+    .x(d => x(d.data.NUMBER))
+    .y0(d => y(d[0]))
+    .y1(d => y(d[1]));
+
+const colorByType = (...args) => types[args[1]][1];
 
 const renderPaths = (node, series, area) => {
     return node.selectAll('path')
@@ -43,25 +49,15 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
             .keys(Object.keys(data[0].FEATURES))
             .offset(d3.stackOffsetWiggle)
             .value((d, key) => d.FEATURES[key]);
-
         const series = stack(data);
 
         const scales = makeScales(data, series);
 
-        const mapArea = d3.area()
-            .curve(d3.curveBasis)
-            .x(d => scales.mapX(d.data.NUMBER))
-            .y0(d => scales.mapY(d[0]))
-            .y1(d => scales.mapY(d[1]));
+        const mapArea = makeArea(scales.mapX, scales.mapY);
+        const focusArea = makeArea(scales.focusX, scales.focusY);
+
         renderPaths(map, series, mapArea);
-
         brushMap(focusArea, scales);
-
-        const focusArea = d3.area()
-            .curve(d3.curveBasis)
-            .x(d => scales.focusX(d.data.NUMBER))
-            .y0(d => scales.focusY(d[0]))
-            .y1(d => scales.focusY(d[1]));
 
         renderPaths(focus, series, focusArea);
         zoomFocus(focusArea, scales);

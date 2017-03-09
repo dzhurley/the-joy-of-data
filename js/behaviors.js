@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { height, width } from './constants';
 import { focus, map, zoomExtent } from './elements';
 
+// save for coordinating in other handlers
 let brush, zoom;
 
 const brushMap = (area, { focusX, mapX }) => {
@@ -12,7 +13,6 @@ const brushMap = (area, { focusX, mapX }) => {
         const scale = d3.event.selection || mapX.range();
         focusX.domain(scale.map(mapX.invert, mapX));
         focus.selectAll('path').attr('d', area);
-        // TODO: clears entire focus area instead of delegates zoom behavior
         zoomExtent.call(zoom.transform, d3.zoomIdentity
             .scale(width / (scale[1] - scale[0]))
             .translate(-scale[0], 0));
@@ -35,7 +35,7 @@ const zoomFocus = (area, { focusX, mapX }) => {
         const transform = d3.event.transform;
         focusX.domain(transform.rescaleX(mapX).domain());
         focus.selectAll('path').attr('d', area);
-        map.select('.brush').call(brush.move, mapX.range().map(transform.invertX, transform));
+        d3.select('.brush').call(brush.move, mapX.range().map(transform.invertX, transform));
     };
 
     zoom = d3.zoom()
