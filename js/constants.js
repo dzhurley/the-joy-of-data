@@ -1,7 +1,5 @@
 export const width = window.innerWidth;
 export const height = window.innerHeight;
-export const mapOffset = 3;
-export const focusOffset = 30;
 
 export const earth = ['earth', '#73795D'];
 export const flora = ['flora', '#64A175'];
