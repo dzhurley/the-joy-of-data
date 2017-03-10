@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
 
 import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './constants';
-import { focus, map } from './elements';
+import { focus, map, mapBottom } from './elements';
 import { brushMap, zoomFocus } from './behaviors';
-import { makeHoverable } from './hover';
+import { makeHovers } from './hover';
 
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
@@ -63,18 +63,21 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const series = stack(data);
 
         const scales = makeScales(data, series);
+        const mapAxis = d3.axisBottom(scales.mapX);
+        const focusAxis = d3.axisTop(scales.focusX);
         const mapArea = makeArea(scales.mapX, scales.mapY);
         const focusArea = makeArea(scales.focusX, scales.focusY);
 
         const mapCanvas = setupCanvas(map, mapHeight, mapOffset);
         updatePaths(mapCanvas.el, mapCanvas.ctx, series, mapArea);
+        mapBottom.call(mapAxis);
 
         const focusCanvas = setupCanvas(focus, focusHeight, focusOffset);
         const updateFocus = () => updatePaths(focusCanvas.el, focusCanvas.ctx, series, focusArea);
         updateFocus();
 
+        makeHovers(focusAxis);
+
         zoomFocus(scales, updateFocus);
         brushMap(scales, updateFocus);
-
-        makeHoverable(data, scales.focusX);
     });

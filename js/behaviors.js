@@ -1,7 +1,8 @@
 import * as d3 from 'd3';
 
 import { height, width } from './constants';
-import { focus, map, svg, zoomExtent } from './elements';
+import { brushExtent, focus, map, zoomExtent } from './elements';
+import { updateHovers } from './hover';
 
 // save for coordinating in other handlers
 let zoom, brush;
@@ -14,6 +15,7 @@ const zoomFocus = ({ focusX, mapX }, updateFocus) => {
         focusX.domain(transform.rescaleX(mapX).domain());
         updateFocus();
         d3.select('.brush').call(brush.move, mapX.range().map(transform.invertX, transform));
+        updateHovers();
     };
 
     zoom = d3.zoom()
@@ -24,7 +26,6 @@ const zoomFocus = ({ focusX, mapX }, updateFocus) => {
 
     const focusBox = focus.node().getBoundingClientRect();
     zoomExtent
-        .attr('x', focusBox.left)
         .attr('y', focusBox.top)
         .attr('width', focusBox.width)
         .attr('height', focusBox.height)
@@ -41,6 +42,7 @@ const brushMap = ({ focusX, mapX }, updateFocus) => {
         zoomExtent.call(zoom.transform, d3.zoomIdentity
             .scale(width / (scale[1] - scale[0]))
             .translate(-scale[0], 0));
+        updateHovers();
     };
 
     const mapBox = map.node().getBoundingClientRect();
@@ -48,10 +50,10 @@ const brushMap = ({ focusX, mapX }, updateFocus) => {
         .extent([[mapBox.left, mapBox.top], [mapBox.right, mapBox.bottom]])
         .on('brush', brushed);
 
-    svg.append('g')
-        .attr('class', 'brush')
+    brushExtent
         .call(brush)
-        .call(brush.move, [mapBox.left, mapBox.right / 13]);
+        .call(brush.move, [mapBox.left, mapBox.right / 31])
+        .call(updateHovers);
 };
 
 export { brushMap, zoomFocus };

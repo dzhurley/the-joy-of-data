@@ -1,16 +1,18 @@
-import { zoomExtent } from './elements';
+import { focusOffset } from './constants';
+import { focus, focusBottom } from './elements';
 
-const makeHoverable = (data, x) => {
-    const width = x(1);
-    const { y, height } = zoomExtent.node().getBBox();
-    zoomExtent.selectAll('rect')
-        .data(data)
-        .enter().append('rect')
-        .attr('class', 'view')
-        .attr('x', (...args) => width * args[1])
-        .attr('y', y)
-        .attr('width', width)
-        .attr('height', height);
+let axis;
+
+const updateHovers = () => {
+    focusBottom.call(axis);
 };
 
-export { makeHoverable };
+const makeHovers = focusAxis => {
+    const focusBox = focus.node().getBoundingClientRect();
+    axis = focusAxis;
+    focusBottom
+        .attr('transform', `translate(0, ${focusOffset + focusBox.height})`)
+        .call(axis);
+};
+
+export { makeHovers, updateHovers };
