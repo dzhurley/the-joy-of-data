@@ -54,4 +54,4 @@ const brushMap = ({ focusX, mapX }, updateFocus) => {
         .call(brush.move, [mapBox.left, mapBox.right / 13]);
 };
 
-export { zoomFocus, brushMap };
+export { brushMap, zoomFocus };

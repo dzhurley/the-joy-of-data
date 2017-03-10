@@ -16,11 +16,11 @@
       canvas {
         z-index: -1;
       }
-      .focus, .map, .zoom {
+      .focus, .map, .zoom, .view {
         position: absolute;
         left: 0;
       }
-      .focus, .zoom {
+      .focus, .zoom, .view {
         top: 130px;
       }
       .map {
@@ -30,6 +30,10 @@
         cursor: move;
         fill: none;
         pointer-events: all;
+      }
+      .view {
+        fill: red;
+        stroke: red;
       }
     </style>
   </head>
