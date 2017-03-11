@@ -4,12 +4,14 @@ import { focus, focusBottom, zoomExtent } from './elements';
 let axis;
 
 const hover = (datum, index, elements) => {
-    console.log('hovering', datum.EPISODE);
-    elements[index].style.fill = 'green';
+    if (!datum) return;
+    elements[index].style.fill = 'grey';
+    elements[index].style.opacity = 0.2;
 };
 const unhover = (datum, index, elements) => {
-    console.log('unhovering', datum.EPISODE);
+    if (!datum) return;
     elements[index].style.fill = 'none';
+    elements[index].style.opacity = 1;
 };
 
 const updateHovers = () => {
