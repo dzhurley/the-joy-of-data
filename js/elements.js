@@ -20,5 +20,5 @@ export const focusBottom = svg.append('g')
 export const brushExtent = svg.append('g')
     .attr('class', 'brush');
 
-export const zoomExtent = svg.append('rect')
+export const zoomExtent = svg.append('g')
     .attr('class', 'zoom');

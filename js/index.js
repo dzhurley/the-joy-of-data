@@ -76,7 +76,7 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const updateFocus = () => updatePaths(focusCanvas.el, focusCanvas.ctx, series, focusArea);
         updateFocus();
 
-        makeHovers(focusAxis);
+        makeHovers(data, focusAxis);
 
         zoomFocus(scales, updateFocus);
         brushMap(scales, updateFocus);
