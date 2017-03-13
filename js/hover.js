@@ -1,17 +1,19 @@
+import * as d3 from 'd3';
+
 import { focusOffset } from './constants';
 import { focus, zoomExtent } from './elements';
 
 let axis;
 
 const hover = (_, index, elements) => {
-    elements[index].style.fill = 'grey';
+    console.log(d3.mouse(focus.node()));
+    elements[index].style.stroke = 'grey';
     elements[index].style.opacity = 0.2;
 };
 const unhover = (_, index, elements) => {
-    elements[index].style.fill = 'none';
+    elements[index].style.stroke = 'none';
     elements[index].style.opacity = 1;
 };
-
 const updateHovers = () => {
     const scale = axis.scale();
     const width = Math.abs(scale(1) - scale(0));

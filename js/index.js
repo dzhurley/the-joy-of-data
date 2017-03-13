@@ -24,7 +24,7 @@ const makeArea = (x, y) => d3.area()
 const updatePaths = (element, context, series, area) => {
     context.clearRect(0, 0, element.width, element.height);
     series.forEach(datum => {
-        context.fillStyle = types[datum.index][1];
+        context.fillStyle = types[datum.index];
         context.fill(new Path2D(area(datum)));
     });
 };
@@ -45,21 +45,29 @@ const setupCanvas = (node, height, offset) => {
 d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv')
     .response(xhr => d3.csvParse(xhr.responseText))
     .get(json => {
-        const data = json.map((show, index) => {
-            return Object.keys(show).reduce((datum, key) => {
-                // elevate EPISODE and TITLE out of FEATURES
-                ['EPISODE', 'TITLE'].includes(key) ?
-                    datum[key] = show[key] :
-                    datum.FEATURES[key] = parseInt(show[key], 10);
-                datum.NUMBER = index;
+        const data = json.map((show, showIndex) => {
+            const datum = {
+                EPISODE: show.EPISODE,
+                TITLE: show.TITLE,
+                FEATURES: {},
+                NUMBER: showIndex
+            };
+            delete show.EPISODE;
+            delete show.TITLE;
+
+            return Object.keys(show).reduce((datum, key, featureIndex) => {
+                datum.FEATURES[key] = {
+                    color: types[featureIndex],
+                    present: parseInt(show[key], 10)
+                };
                 return datum;
-            }, { NUMBER: index, FEATURES: {} });
+            }, datum);
         }, []);
 
         const stack = d3.stack()
             .keys(Object.keys(data[0].FEATURES))
             .offset(d3.stackOffsetWiggle)
-            .value((d, key) => d.FEATURES[key]);
+            .value((d, key) => d.FEATURES[key].present);
         const series = stack(data);
 
         const scales = makeScales(data, series);
