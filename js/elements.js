@@ -11,9 +11,6 @@ export const focus = select('body')
 export const svg = select('body')
     .append('svg:svg');
 
-export const mapBottom = svg.append('g')
-    .attr('class', 'map-axis');
-
 export const brushExtent = svg.append('g')
     .attr('class', 'brush');
 

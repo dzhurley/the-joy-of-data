@@ -1,47 +1,73 @@
-import { focusOffset } from './constants';
+import { select } from 'd3';
+
+import { focusOffset, height } from './constants';
 import { focus, zoomExtent } from './elements';
 
 let activeIndex = null;
 let axis;
+let groups;
+let key;
 
-const activate = (view, index) => {
-    view.classList.add('active');
+const activate = (datum, view, index) => {
+    const x = view.x.baseVal.value + view.width.baseVal.value + 8;
+
+    view.parentElement.classList.add('active');
     activeIndex = index;
+    key = zoomExtent.select('.active')
+        .append('g')
+        .attr('class', 'key');
 
-    // TODO: color sampling
+    key.selectAll('text')
+        .data(datum.FEATURES.filter(d => d[2]))
+      .enter().append('text')
+        .attr('class', 'feature')
+        .attr('x', x)
+        .attr('y', (_, i) => view.y.baseVal.value + 20 + i * 16)
+        .attr('fill', d => d[1])
+        .text(d => d[1]);
 };
 
-const toggle = (_, index, elements) => {
-    const view = elements[index];
-    if (view.classList.contains('active')) {
-        view.classList.remove('active');
-        return;
-    }
+const deactivate = view => {
+    view.parentElement.classList.remove('active');
+    activeIndex = null;
+    key.remove();
+};
 
-    if (activeIndex && activeIndex !== index) {
-        elements[activeIndex].classList.remove('active');
-        activeIndex = null;
+const toggle = (datum, index, elements) => {
+    const view = elements[index];
+    if (view.parentNode.classList.contains('active')) {
+        deactivate(view);
+        return;
+    } else if (![null, index].includes(activeIndex)) {
+        deactivate(elements[activeIndex]);
     }
-    activate(view, index);
+    activate(datum, view, index);
 };
 
 const updateHovers = () => {
     const scale = axis.scale();
     const width = Math.abs(scale(1) - scale(0));
-    zoomExtent.selectAll('rect')
-        .attr('x', (_, i) => scale(i))
-        .attr('width', width);
-    zoomExtent.selectAll('text')
-        .attr('x', (_, i) => scale(i));
+
+    // resize and position each contained rect
+    groups._groups[0].forEach((group, index) => {
+        let rect = group.firstElementChild;
+        rect.setAttribute('x', scale(index));
+        rect.setAttribute('width', width);
+
+        if (group.classList.contains('active')) {
+            let x = rect.x.baseVal.value + rect.width.baseVal.value + 8;
+            select(group.lastElementChild).selectAll('text').attr('x', x);
+        }
+    });
 };
 
 const makeHovers = (data, focusAxis) => {
     const { bottom, top } = focus.node().getBoundingClientRect();
     axis = focusAxis;
 
-    const groups = zoomExtent.selectAll('g')
+    groups = zoomExtent.selectAll('g')
         .data(data)
-        .enter().append('g')
+      .enter().append('g')
         .attr('class', 'view');
 
     groups.append('rect')
@@ -51,12 +77,9 @@ const makeHovers = (data, focusAxis) => {
 
     groups.append('text')
         .attr('class', 'episode')
-        .attr('y', top + 10)
+        .attr('x', 16)
+        .attr('y', height - 16)
         .text(d => d.EPISODE);
-    groups.append('text')
-        .attr('class', 'title')
-        .attr('y', top + 20)
-        .text(d => d.TITLE);
 };
 
 export { makeHovers, updateHovers };

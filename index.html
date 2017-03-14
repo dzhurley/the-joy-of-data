@@ -43,8 +43,13 @@
         stroke: black;
         display: none;
       }
-      .active ~ text {
+      .active, .active:hover {
+        stroke: rgba(20, 20, 20, 1);
+      }
+      .active text {
         display: block;
+        font-family: sans-serif;
+        font-size: 16px;
       }
     </style>
   </head>
