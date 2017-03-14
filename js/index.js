@@ -42,18 +42,20 @@ const setupCanvas = (node, height, offset) => {
     return { el, ctx };
 };
 
+const capitalize = (text, delimiter) => {
+    const words = text.replace(/"/g, '').toLowerCase().split(delimiter);
+    return words.map(word => word[0].toUpperCase() + word.slice(1, word.length)).join(' ');
+};
+
 d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv')
     .response(xhr => d3.csvParse(xhr.responseText))
     .get(json => {
         const data = json.map((show, showIndex) => {
-            const titleWords = show.TITLE.replace(/"/g, '').toLowerCase().split(' ');
-            const TITLE = titleWords.map(word => {
-                return word[0].toUpperCase() + word.slice(1, word.length);
-            }).join(' ');
-
-            const [_, s, e] = /S(\d\d)E(\d\d)/.exec(show.EPISODE);
+            const match = /S(\d\d)E(\d\d)/.exec(show.EPISODE);
+            const season = parseInt(match[1], 10);
+            const episode = parseInt(match[2], 10);
             const datum = {
-                EPISODE: `Season ${parseInt(s, 10)}, Episode ${parseInt(e, 10)}: ${TITLE}`,
+                EPISODE: `Season ${season}, Episode ${episode}: ${capitalize(show.TITLE, ' ')}`,
                 FEATURES: [],
                 NUMBER: showIndex
             };
@@ -61,7 +63,11 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
             delete show.TITLE;
 
             return Object.keys(show).reduce((datum, key, featureIndex) => {
-                datum.FEATURES.push([key, types[featureIndex], parseInt(show[key], 10)]);
+                datum.FEATURES.push([
+                    capitalize(key, '_'),
+                    types[featureIndex],
+                    parseInt(show[key], 10)
+                ]);
                 return datum;
             }, datum);
         }, []);

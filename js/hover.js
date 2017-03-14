@@ -24,7 +24,15 @@ const activate = (datum, view, index) => {
         .attr('x', x)
         .attr('y', (_, i) => view.y.baseVal.value + 20 + i * 16)
         .attr('fill', d => d[1])
-        .text(d => d[1]);
+        .attr('stroke', d => d[1])
+        .text(d => d[0]);
+
+    const keyBox = key.node().getBBox();
+    key.insert('rect', ':first-child')
+        .attr('x', keyBox.x - 8)
+        .attr('y', keyBox.y - 5)
+        .attr('width', keyBox.width + 16)
+        .attr('height', keyBox.height + 10);
 };
 
 const deactivate = view => {
@@ -55,8 +63,9 @@ const updateHovers = () => {
         rect.setAttribute('width', width);
 
         if (group.classList.contains('active')) {
-            let x = rect.x.baseVal.value + rect.width.baseVal.value + 8;
-            select(group.lastElementChild).selectAll('text').attr('x', x);
+            let x = rect.x.baseVal.value + rect.width.baseVal.value;
+            select(group.lastElementChild).selectAll('text').attr('x', x + 8);
+            select(group.lastElementChild).select('rect').attr('x', x);
         }
     });
 };
