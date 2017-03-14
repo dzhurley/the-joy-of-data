@@ -31,6 +31,21 @@
         fill: none;
         pointer-events: all;
       }
+
+      .view:hover {
+        stroke: rgba(20, 20, 20, 0.2);
+      }
+      .view {
+        fill: none;
+      }
+      .view text {
+        fill: black;
+        stroke: black;
+        display: none;
+      }
+      .active ~ text {
+        display: block;
+      }
     </style>
   </head>
   <body>

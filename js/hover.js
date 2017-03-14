@@ -1,39 +1,62 @@
-import * as d3 from 'd3';
-
 import { focusOffset } from './constants';
 import { focus, zoomExtent } from './elements';
 
+let activeIndex = null;
 let axis;
 
-const hover = (_, index, elements) => {
-    console.log(d3.mouse(focus.node()));
-    elements[index].style.stroke = 'grey';
-    elements[index].style.opacity = 0.2;
+const activate = (view, index) => {
+    view.classList.add('active');
+    activeIndex = index;
+
+    // TODO: color sampling
 };
-const unhover = (_, index, elements) => {
-    elements[index].style.stroke = 'none';
-    elements[index].style.opacity = 1;
+
+const toggle = (_, index, elements) => {
+    const view = elements[index];
+    if (view.classList.contains('active')) {
+        view.classList.remove('active');
+        return;
+    }
+
+    if (activeIndex && activeIndex !== index) {
+        elements[activeIndex].classList.remove('active');
+        activeIndex = null;
+    }
+    activate(view, index);
 };
+
 const updateHovers = () => {
     const scale = axis.scale();
     const width = Math.abs(scale(1) - scale(0));
     zoomExtent.selectAll('rect')
         .attr('x', (_, i) => scale(i))
         .attr('width', width);
+    zoomExtent.selectAll('text')
+        .attr('x', (_, i) => scale(i));
 };
 
 const makeHovers = (data, focusAxis) => {
     const { bottom, top } = focus.node().getBoundingClientRect();
     axis = focusAxis;
 
-    zoomExtent.selectAll('rect')
+    const groups = zoomExtent.selectAll('g')
         .data(data)
-        .enter().append('rect')
-        .attr('class', 'view')
+        .enter().append('g')
+        .attr('class', 'view');
+
+    groups.append('rect')
         .attr('y', top)
         .attr('height', bottom - focusOffset)
-        .on('mouseover', hover)
-        .on('mouseout', unhover);
+        .on('click', toggle);
+
+    groups.append('text')
+        .attr('class', 'episode')
+        .attr('y', top + 10)
+        .text(d => d.EPISODE);
+    groups.append('text')
+        .attr('class', 'title')
+        .attr('y', top + 20)
+        .text(d => d.TITLE);
 };
 
 export { makeHovers, updateHovers };

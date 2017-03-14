@@ -46,9 +46,15 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
     .response(xhr => d3.csvParse(xhr.responseText))
     .get(json => {
         const data = json.map((show, showIndex) => {
+            const titleWords = show.TITLE.replace(/"/g, '').toLowerCase().split(' ');
+            const TITLE = titleWords.map(word => {
+                return word[0].toUpperCase() + word.slice(1, word.length);
+            }).join(' ');
+
+            const [_, s, e] = /S(\d\d)E(\d\d)/.exec(show.EPISODE);
             const datum = {
-                EPISODE: show.EPISODE,
-                TITLE: show.TITLE,
+                TITLE,
+                EPISODE: `Season ${parseInt(s, 10)}, Episode ${parseInt(e, 10)}`,
                 FEATURES: {},
                 NUMBER: showIndex
             };
