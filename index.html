@@ -36,29 +36,33 @@
         pointer-events: all;
       }
 
-      .view:hover {
-        stroke: rgba(20, 20, 20, 0.2);
-      }
       .view {
         fill: none;
       }
-      .episode {
-        fill: black;
-        stroke: black;
-        display: none;
+      .view:hover {
+        stroke: rgba(20, 20, 20, 0.2);
       }
       .active, .active:hover {
         stroke: rgba(20, 20, 20, 1);
       }
-      .active .episode {
-        display: block;
-      }
-      .key rect {
-        fill: #F9F9F7;
+
+      .info {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(-100%, 0);
+        background-color: #F9F9F7;
+        outline: black;
       }
     </style>
   </head>
   <body>
+    <section class="info">
+      <section class="info-details">
+        <p>Choose something!</p>
+      </section>
+      <span class="about">(insert `about` here)</span>
+    </section>
     <script src="build/index.js"></script>
   </body>
 </html>

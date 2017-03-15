@@ -2,43 +2,22 @@ import { select } from 'd3';
 
 import { focusOffset, height } from './constants';
 import { focus, zoomExtent } from './elements';
+import updateInfo from './info';
 
 let activeIndex = null;
 let axis;
 let groups;
-let key;
 
 const activate = (datum, view, index) => {
-    const x = view.x.baseVal.value + view.width.baseVal.value + 8;
-
     view.parentElement.classList.add('active');
     activeIndex = index;
-    key = zoomExtent.select('.active')
-        .append('g')
-        .attr('class', 'key');
-
-    key.selectAll('text')
-        .data(datum.FEATURES.filter(d => d[2]))
-      .enter().append('text')
-        .attr('class', 'feature')
-        .attr('x', x)
-        .attr('y', (_, i) => view.y.baseVal.value + 20 + i * 16)
-        .attr('fill', d => d[1])
-        .attr('stroke', d => d[1])
-        .text(d => d[0]);
-
-    const keyBox = key.node().getBBox();
-    key.insert('rect', ':first-child')
-        .attr('x', keyBox.x - 8)
-        .attr('y', keyBox.y - 5)
-        .attr('width', keyBox.width + 16)
-        .attr('height', keyBox.height + 10);
+    updateInfo(datum);
 };
 
 const deactivate = view => {
     view.parentElement.classList.remove('active');
     activeIndex = null;
-    key.remove();
+    updateInfo();
 };
 
 const toggle = (datum, index, elements) => {

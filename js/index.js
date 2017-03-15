@@ -52,10 +52,10 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
     .get(json => {
         const data = json.map((show, showIndex) => {
             const match = /S(\d\d)E(\d\d)/.exec(show.EPISODE);
-            const season = parseInt(match[1], 10);
-            const episode = parseInt(match[2], 10);
             const datum = {
-                EPISODE: `Season ${season}, Episode ${episode}: ${capitalize(show.TITLE, ' ')}`,
+                TITLE: capitalize(show.TITLE, ' '),
+                SEASON: parseInt(match[1], 10),
+                EPISODE: parseInt(match[2], 10),
                 FEATURES: [],
                 NUMBER: showIndex
             };
