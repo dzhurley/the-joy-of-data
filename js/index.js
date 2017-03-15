@@ -8,8 +8,8 @@ import { makeHovers } from './hover';
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
     return {
-        mapX: d3.scaleLinear().domain([0, data.length]).range([0, width]),
-        focusX: d3.scaleLinear().domain([0, data.length]).range([0, width]),
+        mapX: d3.scaleLinear().domain([0, data.length]).range([0, width - 240]),
+        focusX: d3.scaleLinear().domain([0, data.length]).range([0, width - 240]),
         mapY: d3.scaleLinear().domain([0, maxY]).range([mapOffset, mapHeight]),
         focusY: d3.scaleLinear().domain([0, maxY]).range([focusOffset, focusHeight])
     };
@@ -31,8 +31,8 @@ const updatePaths = (element, context, series, area) => {
 
 const setupCanvas = (node, height, offset) => {
     const el = node.node();
-    el.width = width * 2;
-    el.style.width = width + 'px';
+    el.width = (width - 240) * 2;
+    el.style.width = width - 240 + 'px';
     el.height = height + offset;
     el.style.height = height / 2 + offset + 'px';
 
@@ -61,7 +61,6 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
             };
             delete show.EPISODE;
             delete show.TITLE;
-
             return Object.keys(show).reduce((datum, key, featureIndex) => {
                 datum.FEATURES.push([
                     capitalize(key, '_'),
@@ -70,7 +69,7 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
                 ]);
                 return datum;
             }, datum);
-        }, []);
+        });
 
         const stack = d3.stack()
             .keys(data[0].FEATURES.map(f => f[0]))

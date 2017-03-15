@@ -20,8 +20,8 @@ const zoomFocus = ({ focusX, mapX }, updateFocus) => {
 
     zoom = d3.zoom()
         .scaleExtent([1, Infinity])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
+        .translateExtent([[0, 0], [width - 240, height]])
+        .extent([[0, 0], [width - 240, height]])
         .on('zoom', zoomed);
 
     const focusBox = focus.node().getBoundingClientRect();

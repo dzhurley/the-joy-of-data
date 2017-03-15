@@ -1,5 +1,6 @@
+const details = document.querySelector('.info-details');
+
 const updateInfo = datum => {
-    const details = document.querySelector('.info-details');
     if (!datum) {
         return details.innerHTML = '<p>Choose something!</p>';
     }

@@ -1,6 +1,6 @@
 import { select } from 'd3';
 
-import { focusOffset, height } from './constants';
+import { focusOffset } from './constants';
 import { focus, zoomExtent } from './elements';
 import updateInfo from './info';
 
@@ -62,12 +62,6 @@ const makeHovers = (data, focusAxis) => {
         .attr('y', top)
         .attr('height', bottom - focusOffset)
         .on('click', toggle);
-
-    groups.append('text')
-        .attr('class', 'episode')
-        .attr('x', 16)
-        .attr('y', height - 16)
-        .text(d => d.EPISODE);
 };
 
 export { makeHovers, updateHovers };
