@@ -17,7 +17,15 @@ const makeScales = (data, series) => {
 
 const makeArea = (x, y) => d3.area()
     .curve(d3.curveBasis)
-    .x(d => x(d.data.NUMBER))
+    .x0(d => x(d.data.NUMBER))
+    .x1((d, i, n) => {
+        // bail if not last episode
+        if (i !== n.length - 1) return x(d.data.NUMBER);
+        // extend only if feature exists
+        return d.data.FEATURES[n.index][2] === 1 ?
+            x(d.data.NUMBER + 1) :
+            x(d.data.NUMBER);
+    })
     .y0(d => y(d[0]))
     .y1(d => y(d[1]));
 
