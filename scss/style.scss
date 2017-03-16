@@ -5,7 +5,8 @@ body {
     background-color: #f9f9f7;
     color: #1b1b1b;
     font-family: 'Dancing Script';
-    font-size: 20px;
+    font-size: 24px;
+    font-weight: bold;
     cursor: default;
 }
 svg {
@@ -44,12 +45,12 @@ h4 {
     fill: none;
 
     &:hover {
-        stroke: rgba(60, 60, 60, 0.2);
+        stroke: rgba(120, 120, 120, 0.2);
         stroke-width: 5px;
     }
 }
 .active, .active:hover {
-    stroke: rgba(60, 60, 60, 1);
+    stroke: rgba(120, 120, 120, 1);
     stroke-width: 5px;
 }
 

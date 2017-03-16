@@ -1,4 +1,6 @@
-const details = document.querySelector('.info-details');
+import { select } from 'd3';
+
+const details = select('.info-details').node();
 
 /* eslint-disable quotes */
 const quotes = [
@@ -23,8 +25,12 @@ const quotes = [
 ];
 /* eslint-enable */
 
-const updateInfo = (datum, color) => {
+const updateInfo = (colors, datum) => {
     if (!datum) {
+        // select('.info-details li')
+        //     .on('mousemove', null)
+        //     .on('mouseout', null);
+        colors([]);
         return details.innerHTML = `
             <h1>Click around!</h1>
             <p class="quote">"${quotes[Math.floor(Math.random() * (quotes.length - 1))]}"</p>
@@ -32,11 +38,12 @@ const updateInfo = (datum, color) => {
         `;
     }
 
+    let activeColors = [];
     const features = datum.FEATURES
-        .filter(f => f[2])
+        .filter(f => f[2] === 1)
         .map(f => {
-            const active = color === f[1] ? ' feature-active' : '';
-            return `<li class="feature${active}" style="color: ${f[1]}">${f[0]}</li>`;
+            activeColors.push(f[1]);
+            return `<li class="feature" style="color: ${f[1]}">${f[0]}</li>`;
         })
         .join('');
 
@@ -45,6 +52,11 @@ const updateInfo = (datum, color) => {
         <h4>${datum.EPISODE}</h4>
         <ul class="features">${features}</ul>
     `;
+    colors(activeColors);
+
+//     select('.info-details li')
+//         .on('mousemove', () => colors([]))
+//         .on('mouseout', () => colors([]));
 };
 
 export default updateInfo;

@@ -32,12 +32,22 @@ const makeArea = (x, y) => d3.area()
     .y0(d => y(d[0]))
     .y1(d => y(d[1]));
 
+let activeColors = [];
 const updatePaths = (element, context, series, area) => {
     context.clearRect(0, 0, element.width, element.height);
-    series.forEach(datum => {
-        context.fillStyle = types[datum.index];
-        context.fill(new Path2D(area(datum)));
-    });
+    context.globalAlpha = 1;
+    if (activeColors.length) {
+        series.forEach(datum => {
+            context.fillStyle = types[datum.index];
+            context.globalAlpha = activeColors.includes(context.fillStyle) ? 1 : 0.2;
+            context.fill(new Path2D(area(datum)));
+        });
+    } else {
+        series.forEach(datum => {
+            context.fillStyle = types[datum.index];
+            context.fill(new Path2D(area(datum)));
+        });
+    }
 };
 
 const setupCanvas = (node, height, offset) => {
@@ -99,8 +109,10 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const updateFocus = () => updatePaths(focusCanvas.el, focusCanvas.ctx, series, focusArea);
         updateFocus();
 
-        makeHovers(data, focusAxis);
-        updateInfo();
+        makeHovers(data, focusAxis, colors => {
+            activeColors = colors;
+            updateFocus();
+        });
 
         zoomFocus(scales, updateFocus);
         brushMap(scales, updateFocus);

@@ -1,32 +1,31 @@
-import { select, mouse } from 'd3';
+import { select } from 'd3';
 
-import { focusOffset, mapOffset } from './constants';
+import { focusOffset } from './constants';
 import { focus, zoomExtent } from './elements';
 import updateInfo from './info';
 
 let activeIndex = null;
 let axis;
+let colors;
 let groups;
-
-const detectColor = () => {
-    const [x, y] = mouse(focus.node());
-    const context = focus.node().getContext('2d');
-    const [r, g, b] = context.getImageData(x * 2, y * 2 - mapOffset, 1, 1).data;
-    return '#' + ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-};
 
 const activate = (datum, view, index) => {
     view.parentElement.classList.add('active');
-    select(view).on('mousemove', () => updateInfo(datum, detectColor()));
+    // select(view)
+    //     .on('mousemove', () => updateInfo(colors, datum))
+    //     .on('mouseout', () => updateInfo(colors));
     activeIndex = index;
-    updateInfo(datum);
+    updateInfo(colors, datum);
+    colors(datum.FEATURES.filter(f => f[2] === 1).map(f => f[1]));
 };
 
 const deactivate = view => {
     view.parentElement.classList.remove('active');
-    select(view).on('mousemove', null);
+    // select(view)
+    //     .on('mousemove', null)
+    //     .on('mouseout', null);
     activeIndex = null;
-    updateInfo();
+    updateInfo(colors);
 };
 
 const toggle = (datum, index, elements) => {
@@ -51,9 +50,10 @@ const updateHovers = () => {
     });
 };
 
-const makeHovers = (data, focusAxis) => {
+const makeHovers = (data, focusAxis, setColors) => {
     const { bottom, top } = focus.node().getBoundingClientRect();
     axis = focusAxis;
+    colors = setColors;
 
     groups = zoomExtent.selectAll('g')
         .data(data)
@@ -65,6 +65,8 @@ const makeHovers = (data, focusAxis) => {
         .attr('y', top)
         .attr('height', bottom - focusOffset)
         .on('click', toggle);
+
+    updateInfo(colors);
 };
 
 export { makeHovers, updateHovers };
