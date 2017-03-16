@@ -23,7 +23,7 @@ const quotes = [
 ];
 /* eslint-enable */
 
-const updateInfo = datum => {
+const updateInfo = (datum, color) => {
     if (!datum) {
         return details.innerHTML = `
             <h1>Click around!</h1>
@@ -34,7 +34,10 @@ const updateInfo = datum => {
 
     const features = datum.FEATURES
         .filter(f => f[2])
-        .map(f => `<li class="feature" style="color: ${f[1]}">${f[0]}</li>`)
+        .map(f => {
+            const active = color === f[1] ? ' feature-active' : '';
+            return `<li class="feature${active}" style="color: ${f[1]}">${f[0]}</li>`;
+        })
         .join('');
 
     details.innerHTML = `

@@ -1,6 +1,6 @@
-import { select } from 'd3';
+import { select, mouse } from 'd3';
 
-import { focusOffset } from './constants';
+import { focusOffset, mapOffset } from './constants';
 import { focus, zoomExtent } from './elements';
 import updateInfo from './info';
 
@@ -8,14 +8,23 @@ let activeIndex = null;
 let axis;
 let groups;
 
+const detectColor = () => {
+    const [x, y] = mouse(focus.node());
+    const context = focus.node().getContext('2d');
+    const [r, g, b] = context.getImageData(x * 2, y * 2 - mapOffset, 1, 1).data;
+    return '#' + ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
+};
+
 const activate = (datum, view, index) => {
     view.parentElement.classList.add('active');
+    select(view).on('mousemove', () => updateInfo(datum, detectColor()));
     activeIndex = index;
     updateInfo(datum);
 };
 
 const deactivate = view => {
     view.parentElement.classList.remove('active');
+    select(view).on('mousemove', null);
     activeIndex = null;
     updateInfo();
 };
@@ -37,15 +46,8 @@ const updateHovers = () => {
 
     // resize and position each contained rect
     groups._groups[0].forEach((group, index) => {
-        let rect = group.firstElementChild;
-        rect.setAttribute('x', scale(index));
-        rect.setAttribute('width', width);
-
-        if (group.classList.contains('active')) {
-            let x = rect.x.baseVal.value + rect.width.baseVal.value;
-            select(group.lastElementChild).selectAll('text').attr('x', x + 8);
-            select(group.lastElementChild).select('rect').attr('x', x);
-        }
+        group.firstElementChild.setAttribute('x', scale(index));
+        group.firstElementChild.setAttribute('width', width);
     });
 };
 
@@ -58,6 +60,7 @@ const makeHovers = (data, focusAxis) => {
       .enter().append('g')
         .attr('class', 'view');
 
+    // TODO: clip to slice that is visible and work add/remove into updateHovers
     groups.append('rect')
         .attr('y', top)
         .attr('height', bottom - focusOffset)
