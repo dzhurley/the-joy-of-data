@@ -6,6 +6,7 @@ import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './
 import { focus, map } from './elements';
 import { brushMap, zoomFocus } from './behaviors';
 import { makeHovers } from './hover';
+import updateInfo from './info';
 
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
@@ -64,8 +65,7 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
             const match = /S(\d\d)E(\d\d)/.exec(show.EPISODE);
             const datum = {
                 TITLE: capitalize(show.TITLE, ' '),
-                SEASON: parseInt(match[1], 10),
-                EPISODE: parseInt(match[2], 10),
+                EPISODE: `Season ${parseInt(match[1], 10)}, Episode ${parseInt(match[2], 10)}`,
                 FEATURES: [],
                 NUMBER: showIndex
             };
@@ -100,6 +100,7 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         updateFocus();
 
         makeHovers(data, focusAxis);
+        updateInfo();
 
         zoomFocus(scales, updateFocus);
         brushMap(scales, updateFocus);
