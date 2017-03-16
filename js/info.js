@@ -1,4 +1,4 @@
-import { select } from 'd3';
+import { select, selectAll } from 'd3';
 
 const details = select('.info-details').node();
 
@@ -27,9 +27,8 @@ const quotes = [
 
 const updateInfo = (colors, datum) => {
     if (!datum) {
-        // select('.info-details li')
-        //     .on('mousemove', null)
-        //     .on('mouseout', null);
+        selectAll('.info-details li').on('mousemove', null);
+        select('.info-details ul').on('mouseout', null);
         colors([]);
         return details.innerHTML = `
             <h1>Click around!</h1>
@@ -54,9 +53,8 @@ const updateInfo = (colors, datum) => {
     `;
     colors(activeColors);
 
-//     select('.info-details li')
-//         .on('mousemove', () => colors([]))
-//         .on('mouseout', () => colors([]));
+    selectAll('.info-details li').on('mousemove', (_, i) => colors([activeColors[i]]));
+    select('.info-details ul').on('mouseout', () => colors(activeColors));
 };
 
 export default updateInfo;

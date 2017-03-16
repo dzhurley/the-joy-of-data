@@ -1,5 +1,3 @@
-import { select } from 'd3';
-
 import { focusOffset } from './constants';
 import { focus, zoomExtent } from './elements';
 import updateInfo from './info';
@@ -11,9 +9,6 @@ let groups;
 
 const activate = (datum, view, index) => {
     view.parentElement.classList.add('active');
-    // select(view)
-    //     .on('mousemove', () => updateInfo(colors, datum))
-    //     .on('mouseout', () => updateInfo(colors));
     activeIndex = index;
     updateInfo(colors, datum);
     colors(datum.FEATURES.filter(f => f[2] === 1).map(f => f[1]));
@@ -21,9 +16,6 @@ const activate = (datum, view, index) => {
 
 const deactivate = view => {
     view.parentElement.classList.remove('active');
-    // select(view)
-    //     .on('mousemove', null)
-    //     .on('mouseout', null);
     activeIndex = null;
     updateInfo(colors);
 };

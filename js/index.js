@@ -6,7 +6,6 @@ import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './
 import { focus, map } from './elements';
 import { brushMap, zoomFocus } from './behaviors';
 import { makeHovers } from './hover';
-import updateInfo from './info';
 
 const makeScales = (data, series) => {
     const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
