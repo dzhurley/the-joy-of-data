@@ -1,3 +1,5 @@
+import '../scss/style';
+
 import * as d3 from 'd3';
 
 import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './constants';
