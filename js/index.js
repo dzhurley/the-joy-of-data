@@ -2,10 +2,9 @@ import '../scss/style';
 
 import * as d3 from 'd3';
 
-import { height, types, width } from './constants';
+import { canvasWidth, height, types, url, yRange } from './constants';
 import { stream } from './elements';
-import { zoomStream } from './behaviors';
-import { makeHovers } from './hover';
+import { hoverable, zoomable } from './behaviors';
 
 let activeColors = [];
 const updatePaths = (element, context, series, area) => {
@@ -14,6 +13,7 @@ const updatePaths = (element, context, series, area) => {
     if (activeColors.length) {
         series.forEach(datum => {
             context.fillStyle = types[datum.index];
+            // TODO: fold into data so conditional is avoided
             context.globalAlpha = activeColors.includes(context.fillStyle) ? 1 : 0.2;
             context.fill(new Path2D(area(datum)));
         });
@@ -25,25 +25,12 @@ const updatePaths = (element, context, series, area) => {
     }
 };
 
-const setupCanvas = node => {
-    const el = node.node();
-    el.width = (width - 240) * 2;
-    el.style.width = width - 240 + 'px';
-    el.height = height * 2;
-    el.style.height = height + 'px';
-
-    const ctx = el.getContext('2d');
-    ctx.scale(2, 2);
-
-    return { el, ctx };
-};
-
 const capitalize = (text, delimiter) => {
     const words = text.replace(/"/g, '').toLowerCase().split(delimiter);
     return words.map(word => word[0].toUpperCase() + word.slice(1, word.length)).join(' ');
 };
 
-d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv')
+d3.csv(url)
     .response(xhr => d3.csvParse(xhr.responseText))
     .get(json => {
         const data = json.map((show, showIndex) => {
@@ -73,8 +60,8 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
         const series = stack(data);
 
         const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
-        const x = d3.scaleLinear().domain([0, data.length]).range([0, width - 240]);
-        const y = d3.scaleLinear().domain([0, maxY]).range([150, height * 1.75]);
+        const x = d3.scaleLinear().domain([0, data.length]).range([0, canvasWidth]);
+        const y = d3.scaleLinear().domain([0, maxY]).range(yRange);
 
         const axis = d3.axisTop(x);
         const area = d3.area()
@@ -91,14 +78,20 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
             .y0(d => y(d[0]))
             .y1(d => y(d[1]));
 
-        const canvas = setupCanvas(stream);
-        const update = () => updatePaths(canvas.el, canvas.ctx, series, area);
+        const element = stream.node();
+        element.width = canvasWidth * 2;
+        element.style.width = canvasWidth + 'px';
+        element.height = height * 2;
+        element.style.height = height + 'px';
+        const context = element.getContext('2d');
+        context.scale(2, 2);
+
+        const update = () => updatePaths(element, context, series, area);
         update();
 
-        makeHovers(data, axis, colors => {
+        hoverable(data, axis, colors => {
             activeColors = colors;
             update();
         });
-
-        zoomStream(x, x.copy(), update);
+        zoomable(x, x.copy(), update);
     });
