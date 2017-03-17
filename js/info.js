@@ -31,7 +31,7 @@ const updateInfo = (colors, datum) => {
         select('.info-details ul').on('mouseout', null);
         colors([]);
         return details.innerHTML = `
-            <h1>Click around!</h1>
+            <h1>Click, Drag, Zoom!</h1>
             <p class="quote">"${quotes[Math.floor(Math.random() * (quotes.length - 1))]}"</p>
             <span>- Bob Ross</span>
         `;

@@ -1,5 +1,4 @@
-import { focusOffset } from './constants';
-import { focus, zoomExtent } from './elements';
+import { stream, zoomExtent } from './elements';
 import updateInfo from './info';
 
 let activeIndex = null;
@@ -42,9 +41,9 @@ const updateHovers = () => {
     });
 };
 
-const makeHovers = (data, focusAxis, setColors) => {
-    const { bottom, top } = focus.node().getBoundingClientRect();
-    axis = focusAxis;
+const makeHovers = (data, streamAxis, setColors) => {
+    const { bottom, top } = stream.node().getBoundingClientRect();
+    axis = streamAxis;
     colors = setColors;
 
     groups = zoomExtent.selectAll('g')
@@ -55,7 +54,7 @@ const makeHovers = (data, focusAxis, setColors) => {
     // TODO: clip to slice that is visible and work add/remove into updateHovers
     groups.append('rect')
         .attr('y', top)
-        .attr('height', bottom - focusOffset)
+        .attr('height', bottom)
         .on('click', toggle);
 
     updateInfo(colors);
