@@ -2,12 +2,16 @@ body {
     margin: 0;
     padding: 0;
     position: relative;
+
     background-color: #f9f9f7;
     color: #1b1b1b;
+
     font-family: 'Dancing Script';
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
+
     cursor: default;
+    overflow: hidden;
 }
 canvas {
     z-index: -1;
@@ -19,6 +23,9 @@ ul {
 }
 h4 {
     margin: 10px 0;
+}
+a, a:active, a:visited {
+    color: inherit;
 }
 
 svg, .stream, .zoom {
@@ -58,6 +65,7 @@ svg, .stream, .zoom {
     display: flex;
     flex-direction: column;
 
+    overflow-y: scroll;
     padding: 0 20px;
     text-align: center;
 }
@@ -65,7 +73,7 @@ svg, .stream, .zoom {
 .info-details {
     flex-grow: 1;
 
-    .quote {
+    p {
         line-height: 1.5;
     }
 }
@@ -75,7 +83,7 @@ svg, .stream, .zoom {
 }
 
 .feature {
-    line-height: 2;
+    line-height: 1.8;
     cursor: pointer;
 
     &:hover {

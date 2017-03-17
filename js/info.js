@@ -31,7 +31,8 @@ const updateInfo = (colors, datum) => {
         select('.info-details ul').on('mouseout', null);
         colors([]);
         return details.innerHTML = `
-            <h1>Click, Drag, Zoom!</h1>
+            <h1>The Joy of Data</h1>
+            <p>Explore <a href="https://github.com/fivethirtyeight/data/blob/master/bob-ross/elements-by-episode.csv" target="_blank">data</a> from The Joy of Painting with help from <a href="https://d3js.org/" target="_blank">d3.js</a>. Click, zoom, pan, and hover to explore all the seasons!</p>
             <p class="quote">"${quotes[Math.floor(Math.random() * (quotes.length - 1))]}"</p>
             <span>- Bob Ross</span>
         `;
