@@ -2,34 +2,11 @@ import '../scss/style';
 
 import * as d3 from 'd3';
 
-import { focusHeight, focusOffset, mapHeight, mapOffset, types, width } from './constants';
-import { focus, map } from './elements';
-import { brushMap, zoomFocus } from './behaviors';
+import { focusHeight, focusOffset, types, width } from './constants';
+import { focus } from './elements';
+import { zoomFocus } from './behaviors';
 import { makeHovers } from './hover';
 
-const makeScales = (data, series) => {
-    const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
-    return {
-        mapX: d3.scaleLinear().domain([0, data.length]).range([0, width - 240]),
-        focusX: d3.scaleLinear().domain([0, data.length]).range([0, width - 240]),
-        mapY: d3.scaleLinear().domain([0, maxY]).range([mapOffset, mapHeight]),
-        focusY: d3.scaleLinear().domain([0, maxY]).range([focusOffset, focusHeight])
-    };
-};
-
-const makeArea = (x, y) => d3.area()
-    .curve(d3.curveBasis)
-    .x0(d => x(d.data.NUMBER))
-    .x1((d, i, n) => {
-        // bail if not last episode
-        if (i !== n.length - 1) return x(d.data.NUMBER);
-        // extend only if feature exists
-        return d.data.FEATURES[n.index][2] === 1 ?
-            x(d.data.NUMBER + 1) :
-            x(d.data.NUMBER);
-    })
-    .y0(d => y(d[0]))
-    .y1(d => y(d[1]));
 
 let activeColors = [];
 const updatePaths = (element, context, series, area) => {
@@ -96,23 +73,33 @@ d3.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/e
             .value((d, key) => d.FEATURES.some(f => f[0] === key && f[2] === 1));
         const series = stack(data);
 
-        const scales = makeScales(data, series);
-        const focusAxis = d3.axisTop(scales.focusX);
-        const mapArea = makeArea(scales.mapX, scales.mapY);
-        const focusArea = makeArea(scales.focusX, scales.focusY);
+        const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
+        const x = d3.scaleLinear().domain([0, data.length]).range([0, width - 240]);
+        const y = d3.scaleLinear().domain([0, maxY]).range([focusOffset, focusHeight]);
 
-        const mapCanvas = setupCanvas(map, mapHeight, mapOffset);
-        updatePaths(mapCanvas.el, mapCanvas.ctx, series, mapArea);
+        const axis = d3.axisTop(x);
+        const area = d3.area()
+            .curve(d3.curveBasis)
+            .x0(d => x(d.data.NUMBER))
+            .x1((d, i, n) => {
+                // bail if not last episode
+                if (i !== n.length - 1) return x(d.data.NUMBER);
+                // extend only if feature exists
+                return d.data.FEATURES[n.index][2] === 1 ?
+                    x(d.data.NUMBER + 1) :
+                    x(d.data.NUMBER);
+            })
+            .y0(d => y(d[0]))
+            .y1(d => y(d[1]));
 
         const focusCanvas = setupCanvas(focus, focusHeight, focusOffset);
-        const updateFocus = () => updatePaths(focusCanvas.el, focusCanvas.ctx, series, focusArea);
+        const updateFocus = () => updatePaths(focusCanvas.el, focusCanvas.ctx, series, area);
         updateFocus();
 
-        makeHovers(data, focusAxis, colors => {
+        makeHovers(data, axis, colors => {
             activeColors = colors;
             updateFocus();
         });
 
-        zoomFocus(scales, updateFocus);
-        brushMap(scales, updateFocus);
+        zoomFocus(x, x.copy(), updateFocus);
     });

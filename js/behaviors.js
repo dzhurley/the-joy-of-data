@@ -1,24 +1,17 @@
 import * as d3 from 'd3';
 
 import { height, width } from './constants';
-import { brushExtent, focus, map, zoomExtent } from './elements';
+import { focus, zoomExtent } from './elements';
 import { updateHovers } from './hover';
 
-// save for coordinating in other handlers
-let zoom, brush;
-
-const zoomFocus = ({ focusX, mapX }, updateFocus) => {
+const zoomFocus = (x, constX, updateFocus) => {
     const zoomed = () => {
-        // ignore zoom-by-brush
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'brush') return;
-        const transform = d3.event.transform;
-        focusX.domain(transform.rescaleX(mapX).domain());
+        x.domain(d3.event.transform.rescaleX(constX).domain());
         updateFocus();
-        d3.select('.brush').call(brush.move, mapX.range().map(transform.invertX, transform));
         updateHovers();
     };
 
-    zoom = d3.zoom()
+    const zoom = d3.zoom()
         .scaleExtent([1, Infinity])
         .translateExtent([[0, 0], [width - 240, height]])
         .extent([[0, 0], [width - 240, height]])
@@ -29,31 +22,9 @@ const zoomFocus = ({ focusX, mapX }, updateFocus) => {
         .attr('y', focusBox.top)
         .attr('width', focusBox.width)
         .attr('height', focusBox.height)
-        .call(zoom);
-};
-
-const brushMap = ({ focusX, mapX }, updateFocus) => {
-    const brushed = () => {
-        // ignore brush-by-zoom
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return;
-        const scale = d3.event.selection || mapX.range();
-        focusX.domain(scale.map(mapX.invert, mapX));
-        updateFocus();
-        zoomExtent.call(zoom.transform, d3.zoomIdentity
-            .scale(width / (scale[1] - scale[0]))
-            .translate(-scale[0], 0));
-        updateHovers();
-    };
-
-    const mapBox = map.node().getBoundingClientRect();
-    brush = d3.brushX()
-        .extent([[mapBox.left, mapBox.top], [mapBox.right, mapBox.bottom]])
-        .on('brush', brushed);
-
-    brushExtent
-        .call(brush)
-        .call(brush.move, [mapBox.left, mapBox.right / 31])
+        .call(zoom)
+        .call(zoom.transform, d3.zoomIdentity.scale(31))
         .call(updateHovers);
 };
 
-export { brushMap, zoomFocus };
+export { zoomFocus };

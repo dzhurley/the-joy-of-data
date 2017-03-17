@@ -25,15 +25,12 @@ h4 {
     margin: 10px 0;
 }
 
-.focus, .map, .zoom {
+.focus, .zoom {
     position: absolute;
     left: 0;
 }
 .focus, .zoom {
     top: 130px;
-}
-.map {
-    top: 0;
 }
 .zoom {
     cursor: move;
