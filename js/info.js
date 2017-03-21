@@ -54,7 +54,7 @@ const updateInfo = (colors, datum) => {
     `;
     colors(activeColors);
 
-    selectAll('.info-details li').on('mousemove', (_, i) => colors([activeColors[i]]));
+    selectAll('.info-details li').on('mouseover', (_, i) => colors([activeColors[i]]));
     select('.info-details ul').on('mouseout', () => colors(activeColors));
 };
 
