@@ -7,9 +7,8 @@ export const svg = select('body')
     .attr('width', width)
     .attr('height', height);
 
+export const stream = svg.append('g')
+    .attr('class', 'stream');
+
 export const zoomExtent = svg.append('g')
     .attr('class', 'zoom');
-
-export const stream = select('body')
-    .insert('canvas', ':first-child')
-    .attr('class', 'stream');

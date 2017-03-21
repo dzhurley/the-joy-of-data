@@ -1,24 +1,24 @@
 import * as d3 from 'd3';
 
-import { canvasWidth, height, seasons } from './constants';
+import { height, streamWidth } from './constants';
 import { stream, zoomExtent } from './elements';
 
 import updateInfo from './info';
 
 let activeIndex = null;
 let axis;
-let colors;
 let groups;
+let updateStream = () => {};
 
 const activate = (datum, view, index) => {
     view.parentElement.classList.add('active');
     activeIndex = index;
-    updateInfo(colors, datum);
+    updateInfo(updateStream, datum);
 };
 const deactivate = view => {
     view.parentElement.classList.remove('active');
     activeIndex = null;
-    updateInfo(colors);
+    updateInfo(updateStream);
 };
 
 const toggle = (datum, index, elements) => {
@@ -43,10 +43,10 @@ const updateHoverable = () => {
     });
 };
 
-const hoverable = (data, streamAxis, setColors) => {
+const hoverable = (data, streamAxis, update) => {
     const { bottom, top } = stream.node().getBoundingClientRect();
     axis = streamAxis;
-    colors = setColors;
+    updateStream = update;
 
     groups = zoomExtent.selectAll('g')
         .data(data)
@@ -59,20 +59,21 @@ const hoverable = (data, streamAxis, setColors) => {
         .attr('height', bottom)
         .on('click', toggle);
 
-    updateInfo(colors);
+    updateInfo(update);
 };
 
-const zoomable = (x, constX, update) => {
+const zoomable = (scale, constScale) => {
     const zoomed = () => {
-        x.domain(d3.event.transform.rescaleX(constX).domain());
-        update();
+        const { x, y, k } = d3.event.transform;
+        scale.domain(d3.event.transform.rescaleX(constScale).domain());
+        stream.attr('transform', `translate(${x}, ${y}) scale(${k}, 1)`);
         updateHoverable();
     };
 
     const zoom = d3.zoom()
         .scaleExtent([1, Infinity])
-        .translateExtent([[0, 0], [canvasWidth, height]])
-        .extent([[0, 0], [canvasWidth, height]])
+        .translateExtent([[0, 0], [streamWidth, height]])
+        .extent([[0, 0], [streamWidth, height]])
         .on('zoom', zoomed);
 
     const box = stream.node().getBoundingClientRect();
@@ -81,8 +82,8 @@ const zoomable = (x, constX, update) => {
         .attr('width', box.width)
         .attr('height', box.height)
         .call(zoom)
-        .call(zoom.transform, d3.zoomIdentity.scale(seasons))
-        .call(updateHoverable);
+        .call(updateHoverable)
+        .on('dblclick.zoom', null);
 };
 
 export { hoverable, zoomable };

@@ -25,11 +25,11 @@ const quotes = [
 ];
 /* eslint-enable */
 
-const updateInfo = (colors, datum) => {
+const updateInfo = (update, datum) => {
     if (!datum) {
         selectAll('.info-details li').on('mousemove', null);
         select('.info-details ul').on('mouseout', null);
-        colors([]);
+        update();
         return details.innerHTML = `
             <h1>The Joy of Data</h1>
             <p>Explore <a href="https://github.com/fivethirtyeight/data/blob/master/bob-ross/elements-by-episode.csv" target="_blank">data</a> from The Joy of Painting with help from <a href="https://d3js.org/" target="_blank">d3.js</a>. Click, zoom, pan, and hover to explore all the seasons!</p>
@@ -38,11 +38,10 @@ const updateInfo = (colors, datum) => {
         `;
     }
 
-    let activeColors = [];
     const features = datum.FEATURES
         .filter(f => f[2] === 1)
         .map(f => {
-            activeColors.push(f[1]);
+            f[3] = 1;
             return `<li class="feature" style="color: ${f[1]}">${f[0]}</li>`;
         })
         .join('');
@@ -52,10 +51,11 @@ const updateInfo = (colors, datum) => {
         <h4>${datum.EPISODE}</h4>
         <ul class="features">${features}</ul>
     `;
-    colors(activeColors);
+    update(true);
 
-    selectAll('.info-details li').on('mouseover', (_, i) => colors([activeColors[i]]));
-    select('.info-details ul').on('mouseout', () => colors(activeColors));
+    // TODO: address flipping of f[3]
+    selectAll('.info-details li').on('mouseover', () => update(true));
+    select('.info-details ul').on('mouseout', () => update(true));
 };
 
 export default updateInfo;

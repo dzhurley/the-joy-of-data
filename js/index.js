@@ -2,28 +2,9 @@ import '../scss/style';
 
 import * as d3 from 'd3';
 
-import { canvasWidth, height, types, url, yRange } from './constants';
+import { streamWidth, types, url, yRange } from './constants';
 import { stream } from './elements';
 import { hoverable, zoomable } from './behaviors';
-
-let activeColors = [];
-const updatePaths = (element, context, series, area) => {
-    context.clearRect(0, 0, element.width, element.height);
-    context.globalAlpha = 1;
-    if (activeColors.length) {
-        series.forEach(datum => {
-            context.fillStyle = types[datum.index];
-            // TODO: fold into data so conditional is avoided
-            context.globalAlpha = activeColors.includes(context.fillStyle) ? 1 : 0.2;
-            context.fill(new Path2D(area(datum)));
-        });
-    } else {
-        series.forEach(datum => {
-            context.fillStyle = types[datum.index];
-            context.fill(new Path2D(area(datum)));
-        });
-    }
-};
 
 const capitalize = (text, delimiter) => {
     const words = text.replace(/"/g, '').toLowerCase().split(delimiter);
@@ -44,10 +25,12 @@ d3.csv(url)
             delete show.EPISODE;
             delete show.TITLE;
             return Object.keys(show).reduce((datum, key, featureIndex) => {
+                // [name, color, present, active]
                 datum.FEATURES.push([
                     capitalize(key, '_'),
                     types[featureIndex],
-                    parseInt(show[key], 10)
+                    parseInt(show[key], 10),
+                    0
                 ]);
                 return datum;
             }, datum);
@@ -60,7 +43,7 @@ d3.csv(url)
         const series = stack(data);
 
         const maxY = d3.max(series, layer => d3.max(layer, d => d[0] + d[1]));
-        const x = d3.scaleLinear().domain([0, data.length]).range([0, canvasWidth]);
+        const x = d3.scaleLinear().domain([0, data.length]).range([0, streamWidth]);
         const y = d3.scaleLinear().domain([0, maxY]).range(yRange);
 
         const axis = d3.axisTop(x);
@@ -78,20 +61,15 @@ d3.csv(url)
             .y0(d => y(d[0]))
             .y1(d => y(d[1]));
 
-        const element = stream.node();
-        element.width = canvasWidth * 2;
-        element.style.width = canvasWidth + 'px';
-        element.height = height * 2;
-        element.style.height = height + 'px';
-        const context = element.getContext('2d');
-        context.scale(2, 2);
-
-        const update = () => updatePaths(element, context, series, area);
+        const update = isActive => stream.selectAll('path')
+            .data(series)
+          .enter().append('path')
+            .attr('d', area)
+            .attr('fill', d => types[d.index])
+            // if we're clicked on the stream, only dim the paths that aren't active
+            .style('opacity', d => isActive ? (d[3] === 1 ? 1 : 0.2) : 1);
         update();
 
-        hoverable(data, axis, colors => {
-            activeColors = colors;
-            update();
-        });
-        zoomable(x, x.copy(), update);
+        hoverable(data, axis, update);
+        zoomable(x, x.copy());
     });
