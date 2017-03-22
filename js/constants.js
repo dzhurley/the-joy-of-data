@@ -2,7 +2,6 @@ export const width = window.innerWidth;
 export const height = window.innerHeight;
 
 export const streamWidth = width - 240;
-export const yRange = [150, height * 1.75];
 
 export const url = 'https://raw.githubusercontent.com/fivethirtyeight/data/master/bob-ross/elements-by-episode.csv';
 

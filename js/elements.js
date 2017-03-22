@@ -7,8 +7,14 @@ export const svg = select('body')
     .attr('width', width)
     .attr('height', height);
 
-export const stream = svg.append('g')
-    .attr('class', 'stream');
+export const map = svg.append('g')
+    .attr('class', 'map');
+
+export const brushExtent = svg.append('g')
+    .attr('class', 'brush');
+
+export const focus = svg.append('g')
+    .attr('class', 'focus');
 
 export const zoomExtent = svg.append('g')
     .attr('class', 'zoom');

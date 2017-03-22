@@ -25,9 +25,8 @@ a, a:active, a:visited {
     color: inherit;
 }
 
-svg, .stream, .zoom {
+svg, .map, .focus, .zoom {
     position: absolute;
-    top: 0;
     left: 0;
 }
 .zoom {

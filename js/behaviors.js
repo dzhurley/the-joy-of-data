@@ -1,24 +1,22 @@
 import * as d3 from 'd3';
 
 import { height, streamWidth } from './constants';
-import { stream, zoomExtent } from './elements';
+import { brushExtent, focus, map, zoomExtent } from './elements';
 
 import updateInfo from './info';
 
 let activeIndex = null;
-let axis;
-let groups;
-let updateStream = () => {};
+let axis, brush, groups, updateFocus, zoom;
 
 const activate = (datum, view, index) => {
     view.parentElement.classList.add('active');
     activeIndex = index;
-    updateInfo(updateStream, datum);
+    updateInfo(updateFocus, datum);
 };
 const deactivate = view => {
     view.parentElement.classList.remove('active');
     activeIndex = null;
-    updateInfo(updateStream);
+    updateInfo(updateFocus);
 };
 
 const toggle = (datum, index, elements) => {
@@ -43,49 +41,71 @@ const updateHoverable = () => {
     });
 };
 
-const hoverable = (data, streamAxis, update) => {
-    const { bottom, top } = stream.node().getBoundingClientRect();
-    axis = streamAxis;
-    updateStream = update;
+const hoverable = (data, focusAxis, update) => {
+    axis = focusAxis;
+    updateFocus = update;
 
     groups = zoomExtent.selectAll('g')
         .data(data)
       .enter().append('g')
         .attr('class', 'view');
 
-    // TODO: clip to slice that is visible and work add/remove into updateHoverable
+    const box = focus.node().getBoundingClientRect();
     groups.append('rect')
-        .attr('y', top)
-        .attr('height', bottom)
+        .attr('y', box.top)
+        .attr('height', box.height)
         .on('click', toggle);
 
     updateInfo(update);
 };
 
-const zoomable = (scale, constScale) => {
-    const zoomed = () => {
-        const { x, k } = d3.event.transform;
-        // rescale for hoverable rects
-        scale.domain(d3.event.transform.rescaleX(constScale).domain());
-        stream.attr('transform', `translate(${x}, 0) scale(${k}, 1)`);
+const brushable = (focusX, mapX) => {
+    const brushed = () => {
+        const scale = d3.event.selection || mapX.range();
+        focusX.domain(scale.map(mapX.invert, mapX));
+        // ignore brush-by-zoom
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return;
+        zoomExtent.call(zoom.transform, d3.zoomIdentity
+            .scale(streamWidth / (scale[1] - scale[0]))
+            .translate(-scale[0], 0));
         updateHoverable();
     };
 
-    const zoom = d3.zoom()
+    const box = map.node().getBoundingClientRect();
+    brush = d3.brushX()
+        .extent([[box.left, box.top], [box.right, box.bottom]])
+        .on('brush', brushed);
+
+    brushExtent
+        .call(brush)
+        .call(brush.move, [box.left, box.right / 31])
+        .call(updateHoverable);
+};
+
+const zoomable = (focusX, mapX) => {
+    const zoomed = () => {
+        const transform = d3.event.transform;
+        focusX.domain(d3.event.transform.rescaleX(mapX).domain());
+        focus.attr('transform', `translate(${transform.x}, 0) scale(${transform.k}, 1)`);
+        // ignore zoom-by-brush
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'brush') return;
+        brushExtent.call(brush.move, mapX.range().map(transform.invertX, transform));
+        updateHoverable();
+    };
+
+    zoom = d3.zoom()
         .scaleExtent([1, Infinity])
         .translateExtent([[0, 0], [streamWidth, height]])
         .extent([[0, 0], [streamWidth, height]])
         .on('zoom', zoomed);
 
-    const box = stream.node().getBoundingClientRect();
+    const box = focus.node().getBoundingClientRect();
     zoomExtent
         .attr('y', box.top)
         .attr('width', box.width)
         .attr('height', box.height)
         .call(zoom)
-        .call(zoom.transform, d3.zoomIdentity.scale(31))
-        .call(updateHoverable)
         .on('dblclick.zoom', null);
 };
 
-export { hoverable, zoomable };
+export { brushable, hoverable, zoomable };
