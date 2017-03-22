@@ -25,6 +25,9 @@ const quotes = [
 ];
 /* eslint-enable */
 
+const activateFeatures = (features, index) => {
+};
+
 const updateInfo = (update, datum) => {
     if (!datum) {
         selectAll('.info-details li').on('mousemove', null);
@@ -38,24 +41,33 @@ const updateInfo = (update, datum) => {
         `;
     }
 
-    const features = datum.FEATURES
+    const activate = (index=-1) => datum.FEATURES
         .filter(f => f[2] === 1)
-        .map(f => {
-            f[3] = 1;
-            return `<li class="feature" style="color: ${f[1]}">${f[0]}</li>`;
-        })
-        .join('');
+        .map((f, i) => {
+            // if supplied an index, only activate that feature
+            f[3] = index !== -1 ? (index === i ? 1 : 0) : 1;
+            return f;
+        });
 
     details.innerHTML = `
         <h1 class="title">${datum.TITLE}</h1>
         <h4>${datum.EPISODE}</h4>
-        <ul class="features">${features}</ul>
-    `;
-    update(true);
+        <ul class="features">${
+            activate()
+                .map(f => `<li class="feature" style="color: ${f[1]}">${f[0]}</li>`)
+                .join('')
+        }</ul>
+        `;
+    update(datum.NUMBER);
 
-    // TODO: address flipping of f[3]
-    selectAll('.info-details li').on('mouseover', () => update(true));
-    select('.info-details ul').on('mouseout', () => update(true));
+    selectAll('.info-details li').on('mouseover', (_, i) => {
+        activate(i);
+        update(datum.NUMBER);
+    });
+    select('.info-details ul').on('mouseout', () => {
+        activate();
+        update(datum.NUMBER);
+    });
 };
 
 export default updateInfo;

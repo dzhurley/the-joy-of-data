@@ -61,14 +61,18 @@ d3.csv(url)
             .y0(d => y(d[0]))
             .y1(d => y(d[1]));
 
-        const update = isActive => stream.selectAll('path')
+        stream.selectAll('path')
             .data(series)
           .enter().append('path')
             .attr('d', area)
-            .attr('fill', d => types[d.index])
-            // if we're clicked on the stream, only dim the paths that aren't active
-            .style('opacity', d => isActive ? (d[3] === 1 ? 1 : 0.2) : 1);
-        update();
+            .attr('fill', d => types[d.index]);
+
+        const update = index => stream.selectAll('path')
+            .style('opacity', (d, i) => index ?
+                // if one is clicked on the stream, only dim the paths that aren't active
+                (d[index].data.FEATURES[i][3] === 1 ? 1 : 0.2) :
+                1
+            );
 
         hoverable(data, axis, update);
         zoomable(x, x.copy());
