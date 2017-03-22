@@ -64,9 +64,10 @@ const hoverable = (data, streamAxis, update) => {
 
 const zoomable = (scale, constScale) => {
     const zoomed = () => {
-        const { x, y, k } = d3.event.transform;
+        const { x, k } = d3.event.transform;
+        // rescale for hoverable rects
         scale.domain(d3.event.transform.rescaleX(constScale).domain());
-        stream.attr('transform', `translate(${x}, ${y}) scale(${k}, 1)`);
+        stream.attr('transform', `translate(${x}, 0) scale(${k}, 1)`);
         updateHoverable();
     };
 
@@ -82,6 +83,7 @@ const zoomable = (scale, constScale) => {
         .attr('width', box.width)
         .attr('height', box.height)
         .call(zoom)
+        .call(zoom.transform, d3.zoomIdentity.scale(31))
         .call(updateHoverable)
         .on('dblclick.zoom', null);
 };

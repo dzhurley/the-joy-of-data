@@ -25,9 +25,6 @@ const quotes = [
 ];
 /* eslint-enable */
 
-const activateFeatures = (features, index) => {
-};
-
 const updateInfo = (update, datum) => {
     if (!datum) {
         selectAll('.info-details li').on('mousemove', null);
